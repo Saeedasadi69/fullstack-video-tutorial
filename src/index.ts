@@ -4,29 +4,31 @@ import { __prod__ } from "./contants";
 import microConfig from "./mikro-orm.config";
 import express from 'express';
 //import { send } from "process";
-import { ApolloServer, ApolloServerExpressConfig } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
+import { saeedMiddleProvider } from "./saeed-middle";
 
 const main = async () =>{
     
     const orm = await MikroORM.init(microConfig);
     await orm.getMigrator().up();
 
-
     const app = express();
 
     const apoloServer = new ApolloServer({
-        schema: await buildSchema({
-            resolvers :[HelloResolver],
-            validate : false
-        })
-    });
-    apoloServer.applyMiddleware({app});
+         schema: await buildSchema({
+             resolvers :[HelloResolver],
+             validate : false
+         })
+     });
+     apoloServer.applyMiddleware({app});
+
+     saeedMiddleProvider().apply(app);
     // ----- * Replace with graphql code ------
-    // app.get('/',(_, res)=>{
-    //     res.send("Hello");
-    // });
+    app.get('/',(_, res)=>{
+        res.send("Hello");
+    });
     app.listen(4000, ()=>{
         console.log("Server started on localhost:4000");
     });
