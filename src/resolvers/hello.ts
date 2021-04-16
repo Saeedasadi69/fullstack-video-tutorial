@@ -5,7 +5,7 @@ export class HelloResolver{
     @Query(()=>String)
     hello()
     {
-        return "Hello roojin World!!"
+        return "Hello roojin!!!"
     }
 }
     
