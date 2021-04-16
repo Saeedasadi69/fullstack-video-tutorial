@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import { __prod__ } from "./contants";
 //import { Post } from "./entities/Post";
@@ -8,23 +9,31 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { saeedMiddleProvider } from "./saeed-middle";
+import { PostResolver } from "./resolvers/post";
 
 const main = async () =>{
     
     const orm = await MikroORM.init(microConfig);
     await orm.getMigrator().up();
 
+
     const app = express();
 
     const apoloServer = new ApolloServer({
          schema: await buildSchema({
-             resolvers :[HelloResolver],
+             resolvers :[HelloResolver, PostResolver],
              validate : false
-         })
+         }),
+         context: ()=>({em: orm.em}),
      });
      apoloServer.applyMiddleware({app});
 
      saeedMiddleProvider().apply(app);
+
+     // *********  Added for Create test **********************************************
+     //orm.em.create(Post,{title:"post 2"});
+
+
     // ----- * Replace with graphql code ------
     app.get('/',(_, res)=>{
         res.send("Hello");
